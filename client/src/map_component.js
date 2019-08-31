@@ -40,9 +40,11 @@ const MapComponent = () => {
       return // If map or locations not loaded yet.
     }
     // TODO(Task 1): Replace the single red polyline by the different segments on the map.
-    const latlons = locations.map(({ lat, lon }) => [lat, lon])
-    const polyline = L.polyline(latlons, { color: 'red' }).bindPopup(getRouteSummary(locations)).addTo(map.current)
+    for (var loc of locations){
+    let latlons = loc.map(({ lat, lon }) => [lat, lon])
+    let polyline = L.polyline(latlons, { color: "#"+((1<<24)*Math.random()|0).toString(16) }).bindPopup(getRouteSummary(locations)).addTo(map.current)
     map.current.fitBounds(polyline.getBounds())
+    }
     return () => map.current.remove(polyline)
   }, [locations, map.current])
   // TODO(Task 2): Display location that the back-end returned on the map as a marker.
