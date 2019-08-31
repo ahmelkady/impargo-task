@@ -19,13 +19,20 @@ app.get("/", (req, res) => {
 
 app.get("/location/:when", (req, res) => {
   // TODO(Task 2): Return the tracking data closest to `req.params.when` from `exampleData`.
-  res.send({});
+  if (req.params.when != "null") {
+    let time = new Date(req.params.when).getTime();
+    let selectedTrip = getTrip(exampleDataSplit, time);
+    let closest = getClosest(selectedTrip, time);
+    return res.send({ selectedTrip: selectedTrip, closest: closest });
+  } else {
+    res.status(404).send({});
+  }
 });
 
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 //split the data based on odometer, when the odometer stays the same for a number of consecutive readings
-function getSplitData(Data,thresholdLimit) {
+function getSplitData(Data, thresholdLimit) {
   let DataSplit = [];
   let split = [];
   let threshold = 0;
@@ -53,4 +60,31 @@ function getSplitData(Data,thresholdLimit) {
   }
   DataSplit.push(split);
   return DataSplit;
+}
+
+function getTrip(data, time) {
+  for (var trip of data) {
+    if (
+      new Date(trip[trip.length - 1].time).getTime() <= time &&
+      time <= new Date(trip[0].time).getTime()
+    )
+      return trip;
+  }
+  return null;
+}
+
+function getClosest(trip, time) {
+  var diff = Infinity;
+  let closest = null;
+  if (trip) {
+    for (item of trip) {
+      if (Math.abs(new Date(item.time).getTime() - time) < diff) {
+        closest = item;
+        diff = Math.abs(new Date(closest.time).getTime() - time);
+      } else {
+        break;
+      }
+    }
+  }
+  return closest;
 }
